@@ -34,7 +34,7 @@ With <strong>JavaScript</strong>:
 import React, { useRef } from 'react';
 import { View, Button } from 'react-native';
 
-import Recaptcha from 'react-native-recaptcha-that-works';
+import Recaptcha from 'react-native-recaptcha';
 
 const App = () => {
     const recaptcha = useRef();
@@ -75,7 +75,7 @@ const App = () => {
 import React, { useRef } from 'react';
 import { View, Button } from 'react-native';
 
-import Recaptcha, { RecaptchaHandles } from "react-native-recaptcha-that-works";
+import Recaptcha, { RecaptchaHandles } from "react-native-recaptcha";
 
 // ...
 
@@ -128,6 +128,8 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 |webViewProps|[WebViewProps](https://github.com/react-native-webview/react-native-webview/blob/master/docs/Reference.md)||Override the WebView props.|
 |lang|`string`||[Language code](https://developers.google.com/recaptcha/docs/language).|
 |siteKey|`string`||(Required) Your sitekey.|
+|hideBadge|`boolean`||(Opitional) Hide the google badge|
+|hideLoader|`boolean`||(Opitional) Hide the loading animation|
 |baseUrl|`string`||(Required) The URL (domain) configured in the reCAPTCHA setup. (ex. http://my.domain.com)|
 |size|`'invisible'`, `'normal'` or `'compact'`|`'normal'`|The size of the widget.|
 |theme|`'dark'` or `'light'`|`'light'`|The color theme of the widget.|
