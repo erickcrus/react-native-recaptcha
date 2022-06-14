@@ -30,6 +30,8 @@ const getTemplate = (params, enterprise) => {
     const jsScript = enterprise
         ? '<script src="https://www.google.com/recaptcha/enterprise.js?hl={{lang}}" async defer></script>'
         : '<script src="https://www.google.com/recaptcha/api.js?hl={{lang}}" async defer></script>'
+    
+    const hideBadge = params.hideBadge ? `.grecaptcha-badge{display:none}` : '';
 
     let template = `
     <!DOCTYPE html>
@@ -45,6 +47,10 @@ const getTemplate = (params, enterprise) => {
 
         ${jsScript}
 
+        <style>
+            ${hideBadge}
+        </style>
+        
         <script>
             const siteKey = '{{siteKey}}';
             const theme = '{{theme}}';
