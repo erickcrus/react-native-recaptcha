@@ -72,6 +72,7 @@ const Recaptcha = forwardRef(({
     theme,
     size,
     siteKey,
+    hideBadge,
     baseUrl,
     lang,
     style,
@@ -87,6 +88,7 @@ const Recaptcha = forwardRef(({
 
     const html = useMemo(() => {
         return getTemplate({
+            hideBadge,
             siteKey,
             size,
             theme,
