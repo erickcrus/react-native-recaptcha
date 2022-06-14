@@ -1,6 +1,6 @@
 {
-  "name": "react-native-recaptcha-that-works",
-  "displayName": "React-Native reCAPTCHA That Works",
+  "name": "react-native-recaptcha",
+  "displayName": "Fork from react-native-recaptcha-that-works",
   "version": "1.2.0",
   "private": false,
   "license": "MIT",
@@ -18,12 +18,12 @@
     "recaptcha"
   ],
   "author": {
-    "name": "Douglas Nassif Roma Junior",
-    "email": "nassifrroma@gmail.com",
-    "url": "http://smarppy.com"
+    "name": "Erick Crus",
+    "email": "erickcrus@brasilbitcoin.com.br",
+    "url": "http://brasilbitcoin.com.br"
   },
   "bugs": {
-    "url": "https://github.com/douglasjunior/react-native-recaptcha-that-works/issues"
+    "url": "https://github.com/erickcrus/react-native-recaptcha/issues"
   },
   "homepage": "https://github.com/douglasjunior/react-native-recaptcha-that-works",
   "peerDependencies": {
