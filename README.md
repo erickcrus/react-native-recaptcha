@@ -17,11 +17,11 @@ _Looking for [React DOM version](https://github.com/douglasjunior/react-recaptch
 ### Install the module 
 
 ```bash
-  yarn add react-native-recaptcha-that-works react-native-webview
+  yarn add git+https://github.com/erickcrus/react-native-recaptcha.git react-native-webview
 ```
 Or
 ```bash
-  npm i -S react-native-recaptcha-that-works react-native-webview
+  npm i -S git+https://github.com/erickcrus/react-native-recaptcha.git react-native-webview
 ```
 
 _See the [`react-native-webview` Getting Started Guide](https://github.com/react-native-community/react-native-webview/blob/master/docs/Getting-Started.md)._
