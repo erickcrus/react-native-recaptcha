@@ -73,6 +73,7 @@ const Recaptcha = forwardRef(({
     size,
     siteKey,
     hideBadge,
+    hideLoader,
     baseUrl,
     lang,
     style,
@@ -205,7 +206,7 @@ const Recaptcha = forwardRef(({
                 ref={$webView}
             />
             {footerComponent}
-            {renderLoading()}
+            {!hideLoader && renderLoading()}
         </Modal>
     );
 });
