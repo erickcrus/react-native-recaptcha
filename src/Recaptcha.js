@@ -175,7 +175,7 @@ const Recaptcha = forwardRef(({
     ], [style]);
 
     const renderLoading = () => {
-        if (!loading && source) {
+        if ((!loading && source) || hideLoader) {
             return null;
         }
         return (
@@ -206,7 +206,7 @@ const Recaptcha = forwardRef(({
                 ref={$webView}
             />
             {footerComponent}
-            {!hideLoader && renderLoading()}
+            {renderLoading()}
         </Modal>
     );
 });
