@@ -1,9 +1,5 @@
 # reCAPTCHA for React Native (Android and iOS)
 
-[![License MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](https://github.com/douglasjunior/react-native-recaptcha-that-works/blob/master/LICENSE)
-[![npm version](https://img.shields.io/npm/v/react-native-recaptcha-that-works.svg)](https://www.npmjs.com/package/react-native-recaptcha-that-works)
-[![npm downloads](https://img.shields.io/npm/dt/react-native-recaptcha-that-works.svg)](#install)
-
 A reCAPTCHA library for React Native (Android and iOS) that works.
 
 | Normal | Invisible |
