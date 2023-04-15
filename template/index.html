@@ -1,123 +1,25 @@
 <!DOCTYPE html>
-<html lang="{{lang}}">
+<html>
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title></title>
-    <script src="https://www.google.com/recaptcha/api.js?hl={{lang}}" async defer></script>
     <script>
-        const sitekey = '{{site-key}}';
-        const theme = '{{theme}}';
-        const size = '{{size}}';
-
-        let readyInterval;
-        let onCloseInterval;
-        let widget;
-        let onCloseObserver;
-
-        const onClose = () => {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-                close: [],
-            }));
+        function onSubmit(token) {
+            window.ReactNativeWebView.postMessage(JSON.stringify({ token }));
         }
 
-        const onLoad = () => {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-                load: [],
-            }));
-        }
-
-        const onExpire = () => {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-                expire: [],
-            }));
-        }
-
-        const onError = (error) => {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-                error: [error],
-            }));
-        }
-
-        const onVerify = (token) => {
-            window.ReactNativeWebView.postMessage(JSON.stringify({
-                verify: [token],
-            }));
-        }
-
-        const isReady = () => Boolean(typeof window === 'object' && window.grecaptcha && window.grecaptcha.render);
-
-        const registerOnCloseListener = () => {
-            if (onCloseObserver) {
-                onCloseObserver.disconnect();
-            }
-
-            const iframes = document.getElementsByTagName('iframe');
-
-            const recaptchaFrame = Array.prototype.find
-                .call(iframes, e => e.src.includes('google.com/recaptcha/api2/bframe'));
-            const recaptchaElement = recaptchaFrame.parentNode.parentNode;
-
-            clearInterval(onCloseInterval);
-
-            let lastOpacity = recaptchaElement.style.opacity;
-            onCloseObserver = new MutationObserver(mutations => {
-                if (lastOpacity !== recaptchaElement.style.opacity
-                    && recaptchaElement.style.opacity == 0) {
-                    onClose();
-                }
-                lastOpacity = recaptchaElement.style.opacity;
+        function renderRecaptcha() {
+            grecaptcha.render('recaptcha-container', {
+                sitekey: '${sitekey}',
+                size: 'invisile',
+                theme: 'dark',
+                callback: onSubmit
             });
-            onCloseObserver.observe(recaptchaElement, {
-                attributes: true,
-                attributeFilter: ['style'],
-            });
-        }
-
-        const isRendered = () => {
-            return typeof widget === 'number';
-        }
-
-        const renderRecaptcha = () => {
-            widget = window.grecaptcha.render('recaptcha-container', {
-                sitekey,
-                size,
-                theme,
-                callback: onVerify,
-                'expired-callback': onExpire,
-                'error-callback': onError,
-            });
-            if (onLoad) {
-                onLoad();
-            }
-            onCloseInterval = setInterval(registerOnCloseListener, 1000);
-        }
-
-        const updateReadyState = () => {
-            if (isReady()) {
-                clearInterval(readyInterval);
-                renderRecaptcha()
-            }
-        }
-
-        if (isReady()) {
-            renderRecaptcha();
-        } else {
-            readyInterval = setInterval(updateReadyState, 1000);
-        }
-
-        
-        window.rnRecaptcha = {
-            execute: () => {
-                window.grecaptcha.execute(widget);
-            },
-            reset: () => {
-                window.grecaptcha.reset(widget);
-            },
         }
     </script>
-
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         html,
         body,
@@ -131,16 +33,19 @@
 
         .container {
             display: flex;
-            background-color: rgba(0, 0, 0, 0.5);
             justify-content: center;
             align-items: center;
+        }
+
+        .grecaptcha-badge {
+            display: none
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <span id="recaptcha-container"></span>
+        <div id="recaptcha-container"></div>
     </div>
 </body>
 
