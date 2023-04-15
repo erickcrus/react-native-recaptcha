@@ -15,6 +15,10 @@
     "android",
     "recaptcha"
   ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "author": {
     "name": "Erick Crus",
     "email": "erickcrus@brasilbitcoin.com.br",
