@@ -1,13 +1,12 @@
 {
-  "name": "react-native-recaptcha",
-  "displayName": "Fork from react-native-recaptcha-that-works",
-  "version": "1.2.0",
+  "name": "@erickcrus/react-native-recaptcha",
+  "version": "0.0.2",
   "private": false,
   "license": "MIT",
-  "description": "⚛ A reCAPTCHA bridge for React Native that works.",
+  "description": "⚛ A lightweight invisible recaptcha lib",
   "repository": {
     "type": "git",
-    "url": "https://github.com/douglasjunior/react-native-recaptcha-that-works.git"
+    "url": "https://github.com/erickcrus/react-native-recaptcha.git"
   },
   "main": "index.js",
   "types": "index.d.ts",
@@ -25,7 +24,11 @@
   "bugs": {
     "url": "https://github.com/erickcrus/react-native-recaptcha/issues"
   },
-  "homepage": "https://github.com/douglasjunior/react-native-recaptcha-that-works",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "homepage": "https://github.com/erickcrus/react-native-recaptcha",
   "peerDependencies": {
     "react": ">=16.9.0",
     "react-native": ">=0.60.0",

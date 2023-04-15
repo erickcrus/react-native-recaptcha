@@ -29,6 +29,7 @@ import React, {
     useCallback,
     useRef,
     useImperativeHandle,
+    memo,
 } from 'react';
 import {
     Modal,
@@ -217,4 +218,4 @@ Recaptcha.defaultProps = {
     enterprise: false,
 };
 
-export default Recaptcha;
+export default memo(Recaptcha);
