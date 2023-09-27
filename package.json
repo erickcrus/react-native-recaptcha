@@ -29,12 +29,12 @@
   },
   "homepage": "https://github.com/erickcrus/react-native-recaptcha",
   "peerDependencies": {
-    "react": "^17.0.2",
-    "react-native": "^0.68.5",
-    "react-native-webview": "^11.26.0"
+    "react": "*",
+    "react-native": "*",
+    "react-native-webview": "*"
   },
   "resolutions": {
-    "@types/react": "17.0.2",
-    "@types/react-native": "0.68.5"
+    "@types/react": "*",
+    "@types/react-native": "*"
   }
 }
