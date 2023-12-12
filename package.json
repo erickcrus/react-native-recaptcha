@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/erickcrus/react-native-recaptcha.git"
   },
-  "main": "index.js",
+  "main": "src",
   "keywords": [
     "react-native",
     "ios",
@@ -36,6 +36,8 @@
   },
   "resolutions": {
     "@types/react": "*",
-    "@types/react-native": "*"
+    "@types/react-native": "*",
+    "@types/react-native-webview": "*",
+    "@types/react-native-reanimated": "*"
   }
 }

@@ -22,6 +22,18 @@
 * SOFTWARE. 
 */
 
+export type RecaptchaSize = 'invisible' | 'normal' | 'compact';
+
+export type RecaptchaTheme = 'dark' | 'light';
+
+export type TemplateParams = {
+    siteKey: string;
+    size?: RecaptchaSize;
+    theme?: RecaptchaTheme;
+    lang?: string;
+    action?: string;
+};
+
 const getTemplate = (params, enterprise) => {
     const { hideBadge, siteKey, size, theme, lang } = params;
 

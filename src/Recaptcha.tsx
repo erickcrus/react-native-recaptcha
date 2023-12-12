@@ -30,18 +30,21 @@ import React, {
     useRef,
     useImperativeHandle,
     memo,
+    ReactNode,
 } from 'react';
 import {
     Dimensions,
     StyleSheet,
     ActivityIndicator,
     View,
+    StyleProp,
+    ViewStyle
 } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 
-import WebView from 'react-native-webview';
-import getTemplate from './get-template';
+import WebView, { WebViewProps } from 'react-native-webview';
+import getTemplate, { RecaptchaSize, RecaptchaTheme } from './get-template';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 const styles = StyleSheet.create({
@@ -62,7 +65,95 @@ const styles = StyleSheet.create({
 
 const originWhitelist = ['*'];
 
-const Recaptcha = forwardRef(({
+export type RecaptchaRef = {
+    open(): void;
+    close(): void;
+};
+
+export type RecaptchaProps = {
+    /**
+     * A component to render on top of Modal.
+     */
+    headerComponent?: ReactNode;
+    /**
+     * A component to render on bottom of Modal.
+     */
+    footerComponent?: ReactNode;
+    /**
+     * A custom loading component.
+     */
+    loadingComponent?: ReactNode;
+    /**
+     * Customize default style such as background color.
+     *
+     * Ref: https://reactnative.dev/docs/view-style-props
+     */
+    style?: StyleProp<ViewStyle>;
+    /**
+     * Override the WebView props.
+     *
+     * Ref: https://github.com/react-native-webview/react-native-webview/blob/master/docs/Reference.md
+     */
+    webViewProps?: Omit<WebViewProps, 'source' | 'style' | 'onMessage' | 'ref'>;
+    /**
+     * Language code.
+     *
+     * Ref: https://developers.google.com/recaptcha/docs/language
+     */
+    lang?: string;
+    /**
+     * Your Web reCAPTCHA site key. (The Web key must be used, not for Android)
+     */
+    siteKey: string;
+    /**
+     * The URL (domain) configured in the reCAPTCHA console setup. (ex. http://my.domain.com)
+     */
+    baseUrl: string;
+    /**
+     * The size of the widget.
+     */
+    size?: RecaptchaSize;
+    /**
+     * The color theme of the widget.
+     */
+    theme?: RecaptchaTheme;
+    /**
+     * A callback function, executed when the user submits a successful response.
+     *
+     * The reCAPTCHA response token is passed to your callback.
+     */
+    onVerify: (token: string) => void;
+    /**
+     * A callback function, executed when the reCAPTCHA response expires and the user needs to re-verify.
+     *
+     * Only works if the `webview` still open after `onVerify` has been called for a long time.
+     */
+    onExpire?: () => void;
+    /**
+     * A callback function, executed when reCAPTCHA encounters an error (usually network connectivity)
+     * and cannot continue until connectivity is restored.
+     *
+     * If you specify a function here, you are responsible for informing the user that they should retry.
+     */
+    onError?: (error: any) => void;
+    /**
+     * A callback function, executed when the Modal is closed.
+     */
+    onClose?: () => void;
+    /**
+     * When `size = 'invisible'`, you are allowed to hide the badge as long as you include the
+     * reCAPTCHA branding visibly in the user flow.
+     *
+     * Ref: https://developers.google.com/recaptcha/docs/faq#id-like-to-hide-the-recaptcha-badge.-what-is-allowed
+     */
+    hideBadge?: boolean;
+    /**
+     * Use the new [reCAPTCHA Enterprise API](https://cloud.google.com/recaptcha-enterprise/docs/using-features).
+     */
+    enterprise?: boolean;
+};
+
+const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>(({
     headerComponent,
     footerComponent,
     loadingComponent,
