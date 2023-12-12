@@ -43,9 +43,10 @@ import {
 
 const { width, height } = Dimensions.get('window');
 
-import WebView, { WebViewProps } from 'react-native-webview';
+import WebView, { WebViewMessageEvent, WebViewProps } from 'react-native-webview';
 import getTemplate, { RecaptchaSize, RecaptchaTheme } from './get-template';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import { OnShouldStartLoadWithRequest } from 'react-native-webview/lib/WebViewTypes';
 
 const styles = StyleSheet.create({
     webView: {
@@ -148,32 +149,37 @@ export type RecaptchaProps = {
      */
     hideBadge?: boolean;
     /**
+     * hide loader
+     */
+    hideLoader?: boolean;
+    /**
      * Use the new [reCAPTCHA Enterprise API](https://cloud.google.com/recaptcha-enterprise/docs/using-features).
      */
     enterprise?: boolean;
 };
 
-const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>(({
-    headerComponent,
-    footerComponent,
-    loadingComponent,
-    webViewProps,
-    onVerify,
-    onExpire,
-    onError,
-    onClose,
-    theme,
-    size,
-    siteKey,
-    hideBadge,
-    hideLoader,
-    baseUrl,
-    lang,
-    style,
-    enterprise,
-}, $ref,
-) => {
-    const $webView = useRef();
+const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
+    const {
+        headerComponent,
+        footerComponent,
+        loadingComponent,
+        style,
+        webViewProps,
+        lang,
+        siteKey,
+        baseUrl,
+        size,
+        theme,
+        onVerify,
+        onExpire,
+        onError,
+        onClose,
+        hideBadge,
+        hideLoader,
+        enterprise,
+    } = props;
+
+    const $webView = useRef<WebView>(null);
     const [loading, setLoading] = useState(true);
 
     const containerOpacity = useSharedValue(0);
@@ -197,7 +203,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>(({
         }, enterprise);
     }, [siteKey, size, theme, lang, enterprise]);
 
-    const handleMessage = useCallback((content) => {
+    const handleMessage = useCallback((content: WebViewMessageEvent) => {
         try {
             const payload = JSON.parse(content.nativeEvent.data);
             if(payload.verify) {
@@ -225,7 +231,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>(({
     const handleClose = () => {
         containerOpacity.value = 0;
         containerZIndex.value = -1000;
-        $webView.current.injectJavaScript(`
+        $webView.current?.injectJavaScript(`
             grecaptcha.reset();
             true;
         `);
@@ -235,7 +241,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>(({
     const handleOpen = () => {
         containerOpacity.value = 1;
         containerZIndex.value = 1000;
-        $webView.current.injectJavaScript(`
+        $webView.current?.injectJavaScript(`
             grecaptcha.execute();
             true;
         `);
@@ -250,11 +256,11 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>(({
     const handleNavigationStateChange = useCallback(() => {
         // prevent navigation on Android
         if (!loading) {
-            $webView.current.stopLoading();
+            $webView.current?.stopLoading();
         }
     }, [loading]);
 
-    const handleShouldStartLoadWithRequest = useCallback(event => {
+    const handleShouldStartLoadWithRequest: OnShouldStartLoadWithRequest = useCallback(event => {
         // prevent navigation on iOS
         return event.navigationType === 'other';
     }, [loading]);

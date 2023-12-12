@@ -3,3 +3,4 @@ Sample/
 __tests__
 screenshots
 .github
+package-lock.json
