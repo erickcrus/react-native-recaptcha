@@ -23,20 +23,11 @@
 */
 
 const getTemplate = (params, enterprise) => {
-    const grecaptcha = enterprise
-        ? 'window.grecaptcha.enterprise'
-        : 'window.grecaptcha';
-
-    const jsScript = enterprise
-        ? '<script src="https://www.google.com/recaptcha/enterprise.js?hl={{lang}}" async defer></script>'
-        : '<script src="https://www.google.com/recaptcha/api.js?hl={{lang}}" async defer></script>'
-    
-    const hideBadge = params.hideBadge ? `.grecaptcha-badge{display:none}` : '';
+    const { hideBadge, siteKey, size, theme, lang } = params;
 
     let template = `
     <!DOCTYPE html>
-    <html lang="{{lang}}">
-    
+    <html lang="${lang}">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,121 +35,36 @@ const getTemplate = (params, enterprise) => {
 
         <link rel="preconnect" href="https://www.google.com">
         <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-
-        ${jsScript}
-
-        <style>
-            ${hideBadge}
-        </style>
         
+        <script src="https://www.google.com/recaptcha/${ enterprise ? 'enterprise' : 'api'}.js" async defer></script>
         <script>
-            const siteKey = '{{siteKey}}';
-            const theme = '{{theme}}';
-            const size = '{{size}}';
-    
-            let readyInterval;
-            let onCloseInterval;
-            let widget;
-            let onCloseObserver;
-    
-            const onClose = () => {
-                window.ReactNativeWebView.postMessage(JSON.stringify({
-                    close: [],
-                }));
-            }
-    
-            const onLoad = () => {
-                window.ReactNativeWebView.postMessage(JSON.stringify({
-                    load: [],
-                }));
-            }
-    
-            const onExpire = () => {
-                window.ReactNativeWebView.postMessage(JSON.stringify({
-                    expire: [],
-                }));
-            }
-    
-            const onError = (error) => {
-                window.ReactNativeWebView.postMessage(JSON.stringify({
-                    error: [error],
-                }));
-            }
-    
-            const onVerify = (token) => {
-                window.ReactNativeWebView.postMessage(JSON.stringify({
-                    verify: [token],
-                }));
-            }
-    
-            const isReady = () => Boolean(typeof window === 'object' && window.grecaptcha && ${grecaptcha}.render);
-    
-            const registerOnCloseListener = () => {
-                if (onCloseObserver) {
-                    onCloseObserver.disconnect();
+            document.addEventListener("message", function(message) {
+                const data = JSON.parse(message.data);
+
+                switch(data.action){
+                    case 'executeCaptcha':
+                        alert('execute');
+                        window.grecaptcha.execute();
+                        break;
                 }
-    
-                const iframes = document.getElementsByTagName('iframe');
-    
-                const recaptchaFrame = Array.prototype.find
-                    .call(iframes, e => e.src.includes('google.com/recaptcha/api2/bframe'));
-                const recaptchaElement = recaptchaFrame.parentNode.parentNode;
-    
-                clearInterval(onCloseInterval);
-    
-                let lastOpacity = recaptchaElement.style.opacity;
-                onCloseObserver = new MutationObserver(mutations => {
-                    if (lastOpacity !== recaptchaElement.style.opacity
-                        && recaptchaElement.style.opacity == 0) {
-                        onClose();
-                    }
-                    lastOpacity = recaptchaElement.style.opacity;
-                });
-                onCloseObserver.observe(recaptchaElement, {
-                    attributes: true,
-                    attributeFilter: ['style'],
-                });
+            });
+
+            function onSubmit(token) {
+                window.ReactNativeWebView.postMessage(JSON.stringify({
+                    verify: token,
+                }));
             }
-    
-            const isRendered = () => {
-                return typeof widget === 'number';
+
+            function onError(error) {
+                window.ReactNativeWebView.postMessage(JSON.stringify({
+                    error: error,
+                }));
             }
-    
-            const renderRecaptcha = () => {
-                widget = ${grecaptcha}.render('recaptcha-container', {
-                    sitekey: siteKey,
-                    size,
-                    theme,
-                    callback: onVerify,
-                    'expired-callback': onExpire,
-                    'error-callback': onError,
-                });
-                if (onLoad) {
-                    onLoad();
-                }
-                onCloseInterval = setInterval(registerOnCloseListener, 1000);
-            }
-    
-            const updateReadyState = () => {
-                if (isReady()) {
-                    clearInterval(readyInterval);
-                    renderRecaptcha()
-                }
-            }
-    
-            if (isReady()) {
-                renderRecaptcha();
-            } else {
-                readyInterval = setInterval(updateReadyState, 1000);
-            }
-    
-            window.rnRecaptcha = {
-                execute: () => {
-                    ${grecaptcha}.execute(widget);
-                },
-                reset: () => {
-                    ${grecaptcha}.reset(widget);
-                },
+
+            function onExpired() {
+                window.ReactNativeWebView.postMessage(JSON.stringify({
+                    expired: 'expired',
+                }));
             }
         </script>
     
@@ -170,29 +76,28 @@ const getTemplate = (params, enterprise) => {
                 width: 100%;
                 margin: 0;
                 padding: 0;
-                background-color: transparent;
-            }
-    
-            .container {
                 display: flex;
                 justify-content: center;
                 align-items: center;
             }
+
+            ${hideBadge ? `.grecaptcha-badge{display:none}` : ''}
         </style>
     </head>
     
     <body>
         <div class="container">
-            <span id="recaptcha-container"></span>
+            <div class="g-recaptcha"
+                data-sitekey="${siteKey}"
+                data-callback="onSubmit"
+                data-size="${size}"
+                data-error-callback="onError"
+                data-expired-callback="onExpired">
+            </div>
         </div>
     </body>
     
     </html>`;
-
-    Object.entries(params)
-        .forEach(([key, value]) => {
-            template = template.replace(new RegExp(`{{${key}}}`, 'img'), value);
-        });
 
     return template;
 };

@@ -32,14 +32,17 @@ import React, {
     memo,
 } from 'react';
 import {
-    Modal,
+    Dimensions,
     StyleSheet,
     ActivityIndicator,
     View,
 } from 'react-native';
 
+const { width, height } = Dimensions.get('window');
+
 import WebView from 'react-native-webview';
 import getTemplate from './get-template';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 
 const styles = StyleSheet.create({
     webView: {
@@ -64,12 +67,10 @@ const Recaptcha = forwardRef(({
     footerComponent,
     loadingComponent,
     webViewProps,
-    modalProps,
     onVerify,
     onExpire,
     onError,
     onClose,
-    onLoad,
     theme,
     size,
     siteKey,
@@ -81,12 +82,19 @@ const Recaptcha = forwardRef(({
     enterprise,
 }, $ref,
 ) => {
-    const $isClosed = useRef(true);
     const $webView = useRef();
-    const [visible, setVisible] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const isInvisibleSize = size === 'invisible';
+    const containerOpacity = useSharedValue(0);
+    const containerZIndex = useSharedValue(-1000);
+
+    const containerStyles = useAnimatedStyle(() => ({
+        position: 'absolute',
+        width,
+        height,
+        opacity: containerOpacity.value,
+        zIndex: containerZIndex.value,
+    }));
 
     const html = useMemo(() => {
         return getTemplate({
@@ -98,65 +106,55 @@ const Recaptcha = forwardRef(({
         }, enterprise);
     }, [siteKey, size, theme, lang, enterprise]);
 
-    const handleLoad = useCallback((...args) => {
-        onLoad && onLoad(...args);
-
-        if (isInvisibleSize) {
-            $webView.current.injectJavaScript(`
-                window.rnRecaptcha.execute();
-            `);
-        }
-
-        setLoading(false);
-    }, [onLoad, isInvisibleSize]);
-
-    const handleClose = useCallback((...args) => {
-        if ($isClosed.current) {
-            return;
-        }
-        $isClosed.current = true;
-        setVisible(false);
-        onClose && onClose(...args);
-    }, [onClose]);
-
     const handleMessage = useCallback((content) => {
         try {
             const payload = JSON.parse(content.nativeEvent.data);
-            if (payload.close && isInvisibleSize) {
+            if(payload.verify) {
                 handleClose();
+                onVerify && onVerify(payload.verify);
             }
-            if (payload.load) {
-                handleLoad(...payload.load);
-            }
-            if (payload.expire) {
-                onExpire && onExpire(...payload.expire);
-            }
-            if (payload.error) {
+            if(payload.expired) {
                 handleClose();
-                onError && onError(...payload.error);
+                onExpire && onExpire();
             }
-            if (payload.verify) {
+            if(payload.error) {
                 handleClose();
-                onVerify && onVerify(...payload.verify);
+                onError && onError(payload.error);
             }
-        } catch (err) {
-            console.warn(err);
+        } catch (error) {
+            console.warn(error);
         }
-    }, [onVerify, onExpire, onError, handleClose, handleLoad, isInvisibleSize]);
+    }, []);
 
     const source = useMemo(() => ({
         html,
         baseUrl,
     }), [html, baseUrl]);
 
+    const handleClose = () => {
+        containerOpacity.value = 0;
+        containerZIndex.value = -1000;
+        $webView.current.injectJavaScript(`
+            grecaptcha.reset();
+            true;
+        `);
+        onClose && onClose();
+    }
+
+    const handleOpen = () => {
+        containerOpacity.value = 1;
+        containerZIndex.value = 1000;
+        $webView.current.injectJavaScript(`
+            grecaptcha.execute();
+            true;
+        `);
+        setLoading(true);
+    }
+
     useImperativeHandle($ref, () => ({
-        open: () => {
-            setVisible(true);
-            setLoading(true);
-            $isClosed.current = false;
-        },
+        open: handleOpen,
         close: handleClose,
-    }), [handleClose]);
+    }), [handleClose, handleOpen]);
 
     const handleNavigationStateChange = useCallback(() => {
         // prevent navigation on Android
@@ -187,18 +185,13 @@ const Recaptcha = forwardRef(({
     };
 
     return (
-        <Modal
-            transparent
-            {...modalProps}
-            visible={visible}
-            onRequestClose={handleClose}
-        >
+        <Animated.View style={containerStyles}>
             {headerComponent}
-            <WebView
-                bounces={false}
+            <WebView bounces={false}
                 allowsBackForwardNavigationGestures={false}
                 {...webViewProps}
                 source={source}
+                onLoadEnd={() => setLoading(false)}
                 style={webViewStyles}
                 originWhitelist={originWhitelist}
                 onMessage={handleMessage}
@@ -208,12 +201,12 @@ const Recaptcha = forwardRef(({
             />
             {footerComponent}
             {renderLoading()}
-        </Modal>
+        </Animated.View>
     );
 });
 
 Recaptcha.defaultProps = {
-    size: 'normal',
+    size: 'invisible',
     theme: 'light',
     enterprise: false,
 };

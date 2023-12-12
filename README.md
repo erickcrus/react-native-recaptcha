@@ -1,6 +1,6 @@
 # reCAPTCHA for React Native (Android and iOS)
 
-A reCAPTCHA library for React Native (Android and iOS) that works.
+A reCAPTCHA library for React Native (Android and iOS) that works. This lib was forked from react-native-recaptcha-that-works, but was fully rewrite for my use propouse.
 
 | Normal | Invisible |
 | - | - |
@@ -11,16 +11,12 @@ _Looking for [React DOM version](https://github.com/douglasjunior/react-recaptch
 ## Install 
 
 ### Install the module 
-
 ```bash
-  yarn add git+https://github.com/erickcrus/react-native-recaptcha.git react-native-webview
-```
-Or
-```bash
-  npm i -S git+https://github.com/erickcrus/react-native-recaptcha.git react-native-webview
+  npm i -S @erickcrus/react-native-recaptcha react-native-webview react-native-reanimated
 ```
 
 _See the [`react-native-webview` Getting Started Guide](https://github.com/react-native-community/react-native-webview/blob/master/docs/Getting-Started.md)._
+_See the [`react-native-reanimated` Getting Started Guide](https://docs.swmansion.com/react-native-reanimated/docs/fundamentals/getting-started)._
 
 ## Usage
 
@@ -52,6 +48,8 @@ const App = () => {
         <View>
             <Recaptcha
                 ref={recaptcha}
+                hideBadge={true}
+                hideLoader={true}
                 siteKey="<your-recaptcha-public-key>"
                 baseUrl="http://my.domain.com"
                 onVerify={onVerify}
@@ -119,21 +117,19 @@ For more details, see the [Sample Project](https://github.com/douglasjunior/reac
 |headerComponent|`React Element`||A component to render on top of Modal.|
 |footerComponent|`React Element`||A component to render on bottom of Modal.|
 |loadingComponent|`React Element`||A custom loading component.|
-|style|[`ViewStyle`](https://reactnative.dev/docs/view-style-props)||Customize default style such as background color.|
-|modalProps|[ModalProps](https://reactnative.dev/docs/modal)||Override the Modal props.|
 |webViewProps|[WebViewProps](https://github.com/react-native-webview/react-native-webview/blob/master/docs/Reference.md)||Override the WebView props.|
-|lang|`string`||[Language code](https://developers.google.com/recaptcha/docs/language).|
-|siteKey|`string`||(Required) Your sitekey.|
-|hideBadge|`boolean`||(Opitional) Hide the google badge|
-|hideLoader|`boolean`||(Opitional) Hide the loading animation|
-|baseUrl|`string`||(Required) The URL (domain) configured in the reCAPTCHA setup. (ex. http://my.domain.com)|
-|size|`'invisible'`, `'normal'` or `'compact'`|`'normal'`|The size of the widget.|
-|theme|`'dark'` or `'light'`|`'light'`|The color theme of the widget.|
-|onLoad|`function()`||A callback function, executed when the reCAPTCHA is ready to use.|
 |onVerify|`function(token)`||(Required) A callback function, executed when the user submits a successful response. The reCAPTCHA response token is passed to your callback.|
 |onExpire|`function()`||A callback function, executed when the reCAPTCHA response expires and the user needs to re-verify.|
 |onError|`function(error)`||A callback function, executed when reCAPTCHA encounters an error (usually network connectivity) and cannot continue until connectivity is restored. If you specify a function here, you are responsible for informing the user that they should retry.|
 |onClose|`function()`|| A callback function, executed when the Modal is closed.|
+|theme|`'dark'` or `'light'`|`'light'`|The color theme of the widget.|
+|size|`'invisible'`, `'normal'` or `'compact'`|`'normal'`|The size of the widget.|
+|siteKey|`string`||(Required) Your sitekey.|
+|hideBadge|`boolean`||(Opitional) Hide the google badge|
+|hideLoader|`boolean`||(Opitional) Hide the loading animation|
+|baseUrl|`string`||(Required) The URL (domain) configured in the reCAPTCHA setup. (ex. http://my.domain.com)|
+|lang|`string`||[Language code](https://developers.google.com/recaptcha/docs/language).|
+|style|[`ViewStyle`](https://reactnative.dev/docs/view-style-props)||Customize default style such as background color.|
 |enterprise|`boolean`|`false`| (Experimental) Use the new [reCAPTCHA Enterprise API](https://cloud.google.com/recaptcha-enterprise/docs/using-features).|
 
 Note: If `lang` is not set, then device language is used.
