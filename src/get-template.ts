@@ -32,9 +32,10 @@ export type TemplateParams = {
     theme?: RecaptchaTheme;
     lang?: string;
     action?: string;
+    hideBadge?: boolean;
 };
 
-const getTemplate = (params, enterprise) => {
+const getTemplate = (params: TemplateParams, enterprise?: boolean) => {
     const { hideBadge, siteKey, size, theme, lang } = params;
 
     let template = `
