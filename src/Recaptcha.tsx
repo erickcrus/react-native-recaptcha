@@ -251,7 +251,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
     useImperativeHandle($ref, () => ({
         open: handleOpen,
         close: handleClose,
-    }), [handleClose, handleOpen]);
+    }), [handleClose, handleOpen, $webView, source, loading]);
 
     const handleNavigationStateChange = useCallback(() => {
         // prevent navigation on Android
@@ -262,7 +262,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
 
     const handleShouldStartLoadWithRequest: OnShouldStartLoadWithRequest = useCallback(event => {
         // prevent navigation on iOS
-        return event.navigationType === 'other';
+        return event.navigationType === 'other' && event.url !== 'about:blank';
     }, [loading]);
 
     const webViewStyles = useMemo(() => [
@@ -281,6 +281,8 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
         );
     };
 
+    const stopLoading = useCallback(() => setLoading(false), []);
+
     return (
         <Animated.View style={containerStyles}>
             {headerComponent}
@@ -288,7 +290,8 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
                 allowsBackForwardNavigationGestures={false}
                 {...webViewProps}
                 source={source}
-                onLoadEnd={() => setLoading(false)}
+                javaScriptEnabled={true}
+                onLoadEnd={stopLoading}
                 style={webViewStyles}
                 originWhitelist={originWhitelist}
                 onMessage={handleMessage}
