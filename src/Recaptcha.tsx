@@ -31,6 +31,7 @@ import React, {
     useImperativeHandle,
     memo,
     ReactNode,
+    useEffect,
 } from 'react';
 import {
     Dimensions,
@@ -180,7 +181,16 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
     } = props;
 
     const $webView = useRef<WebView>(null);
+    const timeout = useRef<NodeJS.Timeout | null>(null);
     const [loading, setLoading] = useState(true);
+    const captchaLoaded = useRef(false);
+
+    useEffect(() => {
+        captchaLoaded.current = false;
+        return () => {
+            captchaLoaded.current = false;
+        }
+    }, []);
 
     const containerOpacity = useSharedValue(0);
     const containerZIndex = useSharedValue(-1000);
@@ -189,21 +199,23 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
         position: 'absolute',
         width,
         height,
-        opacity: containerOpacity.value,
+        alignItems: 'center',
+        justifyContent: 'center',
         zIndex: containerZIndex.value,
-    }));
+        opacity: containerOpacity.value,
+    }), [ containerOpacity, containerZIndex ]);
 
-    const html = useMemo(() => {
-        return getTemplate({
-            hideBadge,
-            siteKey,
-            size,
-            theme,
-            lang,
-        }, enterprise);
-    }, [siteKey, size, theme, lang, enterprise]);
+    const html = useMemo(() => getTemplate({
+        hideBadge,
+        siteKey,
+        size,
+        theme,
+        lang,
+    }, enterprise), [hideBadge, siteKey, size, theme, lang, enterprise]);
 
     const handleMessage = useCallback((content: WebViewMessageEvent) => {
+        if(timeout.current) clearTimeout(timeout.current);
+        
         try {
             const payload = JSON.parse(content.nativeEvent.data);
             if(payload.verify) {
@@ -218,15 +230,13 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
                 handleClose();
                 onError && onError(payload.error);
             }
+            if(payload.onReady) {
+                captchaLoaded.current = true;
+            }
         } catch (error) {
             console.warn(error);
         }
     }, []);
-
-    const source = useMemo(() => ({
-        html,
-        baseUrl,
-    }), [html, baseUrl]);
 
     const handleClose = () => {
         containerOpacity.value = 0;
@@ -239,8 +249,18 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
     }
 
     const handleOpen = () => {
+        timeout.current = setTimeout(() => {
+            onError && onError('timeout');
+            containerOpacity.value = 0;
+            containerZIndex.value = -1000;
+            $webView.current?.injectJavaScript(`
+                grecaptcha.reset('submit');
+                true;
+            `);
+            setLoading(false);
+        }, 30000);
         containerOpacity.value = 1;
-        containerZIndex.value = 1000;
+        containerZIndex.value = 100000;
         $webView.current?.injectJavaScript(`
             grecaptcha.execute();
             true;
@@ -251,7 +271,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
     useImperativeHandle($ref, () => ({
         open: handleOpen,
         close: handleClose,
-    }), [handleClose, handleOpen, $webView, source, loading]);
+    }), [handleClose, handleOpen, $webView, loading]);
 
     const handleNavigationStateChange = useCallback(() => {
         // prevent navigation on Android
@@ -271,14 +291,11 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
     ], [style]);
 
     const renderLoading = () => {
-        if ((!loading && source) || hideLoader) {
-            return null;
-        }
-        return (
-            <View style={styles.loadingContainer}>
-                {loadingComponent || <ActivityIndicator size="large" />}
-            </View>
-        );
+        if (!loading || hideLoader) return null;
+
+        return <View style={styles.loadingContainer}>
+            {loadingComponent || <ActivityIndicator size="large" />}
+        </View>;
     };
 
     const stopLoading = useCallback(() => setLoading(false), []);
@@ -289,7 +306,11 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
             <WebView bounces={false}
                 allowsBackForwardNavigationGestures={false}
                 {...webViewProps}
-                source={source}
+                source={{
+                    html,
+                    baseUrl,
+                }}
+                cacheEnabled={false}
                 javaScriptEnabled={true}
                 onLoadEnd={stopLoading}
                 style={webViewStyles}
