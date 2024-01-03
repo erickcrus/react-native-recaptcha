@@ -39,17 +39,11 @@ const getTemplate = (params: TemplateParams, enterprise?: boolean) => {
     const { hideBadge, siteKey, size, theme, lang } = params;
 
     let template = `
-    <!DOCTYPE html>
     <html lang="${lang}">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title></title>
-
-        <link rel="preconnect" href="https://www.google.com">
-        <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
-        
-        <script src="https://www.google.com/recaptcha/${ enterprise ? 'enterprise' : 'api'}.js" async defer></script>
+        <title>Brasil Bitcoin Captcha</title>
         <script>
             document.addEventListener("message", function(message) {
                 const data = JSON.parse(message.data);
@@ -62,25 +56,38 @@ const getTemplate = (params: TemplateParams, enterprise?: boolean) => {
                 }
             });
 
-            function onSubmit(token) {
+            var onSubmit = function(token) {
                 window.ReactNativeWebView.postMessage(JSON.stringify({
                     verify: token,
                 }));
             }
 
-            function onError(error) {
+            var onError = function(error) {
                 window.ReactNativeWebView.postMessage(JSON.stringify({
                     error: error,
                 }));
             }
 
-            function onExpired() {
+            var onExpired = function() {
                 window.ReactNativeWebView.postMessage(JSON.stringify({
                     expired: 'expired',
                 }));
             }
+
+            var onloadCallback = function() {
+                grecaptcha.render('submit', {
+                    sitekey: '${siteKey}',
+                    size: '${size}',
+                    theme: '${theme}',
+                    callback: onSubmit,
+                    'expired-callback': onExpired,
+                    'error-callback': onError,
+                });
+                window.ReactNativeWebView.postMessage(JSON.stringify({
+                    onReady: true,
+                }));
+            }
         </script>
-    
         <style>
             html,
             body,
@@ -100,14 +107,9 @@ const getTemplate = (params: TemplateParams, enterprise?: boolean) => {
     
     <body>
         <div class="container">
-            <div class="g-recaptcha"
-                data-sitekey="${siteKey}"
-                data-callback="onSubmit"
-                data-size="${size}"
-                data-error-callback="onError"
-                data-expired-callback="onExpired">
-            </div>
+            <div id="submit" class="g-recaptcha"></div>
         </div>
+        <script src="https://www.google.com/recaptcha/${ enterprise ? 'enterprise' : 'api'}.js?onload=onloadCallback&render=explicit" async defer></script>
     </body>
     
     </html>`;
