@@ -249,20 +249,33 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
     }
 
     const handleOpen = () => {
+        // prevent expiring if the recaptcha is already loaded
+        $webView.current?.injectJavaScript(`
+            setTimeout(() => {
+                grecaptcha.reset();
+            }, 0);
+            true;
+        `);
+
+        // if the recaptcha dont respond in 30 seconds, the error callback will be called
         timeout.current = setTimeout(() => {
             onError && onError('timeout');
             containerOpacity.value = 0;
             containerZIndex.value = -1000;
             $webView.current?.injectJavaScript(`
-                grecaptcha.reset('submit');
+                grecaptcha.reset();
                 true;
             `);
             setLoading(false);
         }, 30000);
+
+        // run recaptcha
         containerOpacity.value = 1;
         containerZIndex.value = 100000;
         $webView.current?.injectJavaScript(`
-            grecaptcha.execute();
+            setTimeout(() => {
+                grecaptcha.execute();
+            }, 100);
             true;
         `);
         setLoading(true);
