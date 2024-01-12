@@ -157,6 +157,10 @@ export type RecaptchaProps = {
      * Use the new [reCAPTCHA Enterprise API](https://cloud.google.com/recaptcha-enterprise/docs/using-features).
      */
     enterprise?: boolean;
+    /**
+     * Ativar debug
+     */
+    debug?: boolean;
 };
 
 const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
@@ -178,6 +182,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
         hideBadge,
         hideLoader,
         enterprise,
+        debug
     } = props;
 
     const $webView = useRef<WebView>(null);
@@ -211,6 +216,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
         size,
         theme,
         lang,
+        debug
     }, enterprise), [hideBadge, siteKey, size, theme, lang, enterprise]);
 
     const handleMessage = useCallback((content: WebViewMessageEvent) => {
@@ -251,9 +257,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
     const handleOpen = () => {
         // prevent expiring if the recaptcha is already loaded
         $webView.current?.injectJavaScript(`
-            setTimeout(() => {
-                grecaptcha.reset();
-            }, 0);
+            grecaptcha.reset();
             true;
         `);
 
@@ -273,9 +277,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
         containerOpacity.value = 1;
         containerZIndex.value = 100000;
         $webView.current?.injectJavaScript(`
-            setTimeout(() => {
-                grecaptcha.execute();
-            }, 100);
+            grecaptcha.execute();
             true;
         `);
         setLoading(true);

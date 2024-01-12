@@ -33,11 +33,11 @@ export type TemplateParams = {
     lang?: string;
     action?: string;
     hideBadge?: boolean;
+    debug?: boolean;
 };
 
 const getTemplate = (params: TemplateParams, enterprise?: boolean) => {
-    const { hideBadge, siteKey, size, theme, lang } = params;
-
+    const { hideBadge, siteKey, size, theme, lang, debug } = params;
     let template = `
     <!DOCTYPE html>
     <html lang="${lang}">
@@ -100,6 +100,8 @@ const getTemplate = (params: TemplateParams, enterprise?: boolean) => {
                 data-size="${size}"
                 data-error-callback="onError"
                 data-expired-callback="onExpired">
+                
+                ${debug ? '<div style="background-color:#00b9fc; color:#FFF; padding: 50px 50px; border-radius:5px" onclick="rerenderRecaptcha()"> Recarregar Captcha </div>' : ''}
             </div>
         </div>
     </body>
