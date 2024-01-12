@@ -160,6 +160,11 @@ export type RecaptchaProps = {
      * Ativar debug
      */
     debug?: boolean;
+
+    /**
+     * Timeout para expirar o recaptcha
+     */
+    timeout?: number;
 };
 
 const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
@@ -181,7 +186,8 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
         hideBadge,
         hideLoader,
         enterprise,
-        debug
+        debug,
+        timeout: _timeout,
     } = props;
 
     const $webView = useRef<WebView>(null);
@@ -270,7 +276,7 @@ const Recaptcha = forwardRef<RecaptchaRef, RecaptchaProps>((props, $ref) => {
                 true;
             `);
             setLoading(false);
-        }, 30000);
+        }, _timeout ?? 30000);
 
         // run recaptcha
         containerOpacity.value = 1;
