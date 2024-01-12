@@ -76,15 +76,13 @@ const getTemplate = (params: TemplateParams, enterprise?: boolean) => {
     
         <style>
             html,
-            body,
-            .container {
+            body {
                 height: 100%;
                 width: 100%;
                 margin: 0;
                 padding: 0;
-                display: flex;
-                justify-content: center;
-                align-items: center;
+                text-align: center;
+                vertical-align: middle;
             }
 
             ${hideBadge ? `.grecaptcha-badge{display:none}` : ''}
@@ -92,18 +90,15 @@ const getTemplate = (params: TemplateParams, enterprise?: boolean) => {
     </head>
     
     <body>
-        <div class="container">
-            <div id="recaptcha"
-                class="g-recaptcha"
-                data-sitekey="${siteKey}"
-                data-callback="onSubmit"
-                data-size="${size}"
-                data-error-callback="onError"
-                data-expired-callback="onExpired">
-                
-                ${debug ? '<div style="background-color:#00b9fc; color:#FFF; padding: 50px 50px; border-radius:5px" onclick="rerenderRecaptcha()"> Recarregar Captcha </div>' : ''}
-            </div>
+        <div id="recaptcha"
+            class="g-recaptcha"
+            data-sitekey="${siteKey}"
+            data-callback="onSubmit"
+            data-size="${size}"
+            data-error-callback="onError"
+            data-expired-callback="onExpired">
         </div>
+        ${debug ? '<div style="background-color:#00b9fc; color:#FFF; padding: 50px 50px; border-radius:5px" onclick="rerenderRecaptcha()"> Recarregar Captcha </div>' : ''}
     </body>
     
     </html>`;

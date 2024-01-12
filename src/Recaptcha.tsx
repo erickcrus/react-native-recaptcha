@@ -51,8 +51,7 @@ import { OnShouldStartLoadWithRequest } from 'react-native-webview/lib/WebViewTy
 
 const styles = StyleSheet.create({
     webView: {
-        flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        width, height
     },
     loadingContainer: {
         position: 'absolute',
